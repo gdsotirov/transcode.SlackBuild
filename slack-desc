@@ -1,30 +1,15 @@
-transcode: transcode 0.6.14 (2004-11-15)
+transcode: Transcode (Audio and video transcoding utilities)
 transcode:
-transcode: Transcode is a suite of tools, all of which are command line
-transcode: utilities, for transcoding various video, audio, and container
-transcode: formats, running on a platform that supports shared libraries and
-transcode: threads. Decoding and encoding is done by loaded modules that are
-transcode: responsible for feeding transcode with raw video/audio streams
-transcode: (import modules) and encoding the frames (export modules). It
-transcode: includes a variety of video and audio filters, including (but not
-transcode: limited to) video de-interlacing, audio resampling, framerate
-transcode: conversion, different video resizing algorithms, smoothing,
-transcode: sharpening, denoisifying, and cutting.
+transcode: Transcode is a suite of command line utilities for transcoding
+transcode: video and audio codecs, and for converting beween different
+transcode: container formats. Transcode can decode and encode many audio
+transcode: and video formats, e.g. MPEG-1/2, MPEG-4(-part 3) (also DivX
+transcode: and XviD variants), Quicktime/MPEG-PS (dvd), MPEG-1-layer-1/2/3
+transcode: audio, AC3 audio. A variety of video and audio pre and post-
+transocde: processing filters are available, including (but not limited
+transcode: to): video de-interlacing, audio resampling, framerate
+transcode: conversion, smoothing, cutting. Transcode can import DVDs
+transcode: on-the-fly, or record from Video4Linux (including V4L2 video
+transcode: capturing) devices.
 transcode:
-transcode:
-transcode: ---
-transcode: Package build by Georgi D. Sotirov <gsotirov@dir.bg>
-transcode: Configure command: ./configure --prefix=/usr/local \
-transcode:                                --enable-avifile \
-transcode:                                --enable-lame \
-transcode:                                --enable-ogg \
-transcode:                                --enable-vorbis \
-transcode:                                --enable-libdvdread \
-transcode:                                --enable-a52 \
-transcode:                                --enable-libxml2 \
-transcode:                                --enable-sdl \
-transcode:                                --enable-imagemagick \
-transcode:                                --enable-libjpeg \
-transcode:                                --enable-gtk
-transcode: Build date: 2005-03-16 21:06 EET
-transcode:
+transcode: Packaged By Georgi D. Sotirov <gdsotirov@dir.bg>
