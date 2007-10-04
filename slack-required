@@ -1,0 +1,26 @@
+a52dec >= 0.7.4
+alsa-lib >= 1.0.14a
+faac >= 1.25
+ffmpeg
+freetype >= 2.3.4
+glib >= 1.2.10
+glibc-solibs >= 2.5
+imagemagick >= 6.3.3_9
+lame >= 3.97
+libdc1394 >= 1.2.2
+libdv >= 1.0.0
+libdvdread >= 0.9.7
+libjpeg >= 6b
+libogg >= 1.1.3
+libpng >= 1.2.18
+libquicktime >= 1.0.0
+libtheora >= 1.0alpha7
+libvorbis >= 1.1.2
+libxml2 >= 2.6.28
+lzo >= 2.02
+mjpegtools >= 1.9.0rc2
+mpeg2dec >= 0.4.1
+sdl >= 1.2.11
+x264
+xvidcore >= 1.1.3
+zlib >= 1.2.3
