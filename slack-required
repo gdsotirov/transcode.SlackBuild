@@ -1,9 +1,9 @@
-52dec >= 0.7.4
+a52dec >= 0.7.4
 alsa-lib >= 1.0.18
 cxxlibs >= 6.0.10 | gcc-g++ >= 4.3.3
 dirac >= 1.0.2
 faad2 >= 2.7
-ffmpeg
+ffmpeg >= 0.6.7
 freetype >= 2.3.9
 gcc >= 4.3.3
 glib2 >= 2.18.4
