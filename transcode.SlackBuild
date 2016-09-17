@@ -19,13 +19,13 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: transcode.SlackBuild,v 1.4 2016/09/17 11:32:26 gsotirov Exp $
+# $Id: transcode.SlackBuild,v 1.5 2016/09/17 14:55:28 gsotirov Exp $
 #
 
 . ../../slack-package.conf
 
 NAME=transcode
-VERSION=1.1.5
+VERSION=1.1.7
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 
