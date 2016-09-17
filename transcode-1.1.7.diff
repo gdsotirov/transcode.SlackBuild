@@ -1,0 +1,16 @@
+# Fix compile issue with FFMpeg 0.10.x
+# Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+diff -urNad transcode-1.1.7-orig//filter/filter_pp.c transcode-1.1.7//filter/filter_pp.c
+--- transcode-1.1.7-orig//filter/filter_pp.c	2011-11-19 18:50:27.000000000 +0200
++++ transcode-1.1.7//filter/filter_pp.c	2016-09-17 19:22:29.000000000 +0300
+@@ -38,8 +38,8 @@
+ 
+ /* FIXME: these use the filter ID as an index--the ID can grow
+  * arbitrarily large, so this needs to be fixed */
+-static pp_mode_t *mode[100];
+-static pp_context_t *context[100];
++static pp_mode *mode[100];
++static pp_context *context[100];
+ static int width[100], height[100];
+ static int pre[100];
+ 
