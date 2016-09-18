@@ -19,7 +19,7 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: transcode.SlackBuild,v 1.7 2016/09/18 09:26:31 gsotirov Exp $
+# $Id: transcode.SlackBuild,v 1.8 2016/09/18 12:26:32 gsotirov Exp $
 #
 
 . ../../slack-package.conf
@@ -117,6 +117,16 @@ CXXFLAGS=$SLKCFLAGS \
 # Build & install
 make -j4 || exit 6
 make DESTDIR=$PKG install || exit 7
+
+# Manually install headers
+mkdir -p $PKG/usr/include/transcode/{aclib,avilib,libtc,libtcaudio,libtcvideo}
+install -m 644 $SRC/config.h       $PKG/usr/include/transcode/config.h
+install -m 644 $SRC/src/*.h        $PKG/usr/include/transcode/
+install -m 644 $SRC/aclib/*.h      $PKG/usr/include/transcode/aclib/
+install -m 644 $SRC/avilib/*.h     $PKG/usr/include/transcode/avilib/
+install -m 644 $SRC/libtc/*.h      $PKG/usr/include/transcode/libtc/
+install -m 644 $SRC/libtcaudio/*.h $PKG/usr/include/transcode/libtcaudio/
+install -m 644 $SRC/libtcvideo/*.h $PKG/usr/include/transcode/libtcvideo/
 
 # Prepare the package
 bin_perms $PKG
