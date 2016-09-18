@@ -19,7 +19,7 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: transcode.SlackBuild,v 1.6 2016/09/17 17:40:03 gsotirov Exp $
+# $Id: transcode.SlackBuild,v 1.7 2016/09/18 09:26:31 gsotirov Exp $
 #
 
 . ../../slack-package.conf
@@ -105,7 +105,6 @@ CXXFLAGS=$SLKCFLAGS \
             --enable-libquicktime \
             --enable-lzo \
             --enable-a52 \
-            --enable-faac \
             --enable-libxml2 \
             --enable-mjpegtools \
             --enable-sdl \
