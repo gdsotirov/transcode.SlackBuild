@@ -1,12 +1,14 @@
-# Patch to support FFmpeg >= 0.10 and >= 0.11
+# Patch to support FFmpeg >= 0.10, 0.11, 2.x and 3.x
 # See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-ffmpeg-0.10.patch
 # See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-ffmpeg-0.11.patch
 # See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-ffmpeg2.patch
 # See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-ffmpeg24.patch
+# See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-ffmpeg29.patch
 # See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-libav-9.patch
+# See https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/transcode/files/transcode-1.1.7-libav-10.patch
 diff -urNad transcode-1.1.7-orig/encode/encode_lavc.c transcode-1.1.7/encode/encode_lavc.c
 --- transcode-1.1.7-orig/encode/encode_lavc.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/encode/encode_lavc.c	2016-09-18 14:17:36.000000000 +0300
++++ transcode-1.1.7/encode/encode_lavc.c	2016-09-23 01:33:47.000000000 +0300
 @@ -74,6 +74,9 @@
      int lmin;
      int lmax;
@@ -54,6 +56,92 @@ diff -urNad transcode-1.1.7-orig/encode/encode_lavc.c transcode-1.1.7/encode/enc
  
  static const TCFormatID tc_lavc_formats[] = { TC_FORMAT_ERROR };
  
+@@ -214,7 +233,7 @@
+                                      vframe_list_t *vframe)
+ {
+     avpicture_fill((AVPicture *)&pd->ff_venc_frame, vframe->video_buf,
+-                    PIX_FMT_YUV420P,
++                    AV_PIX_FMT_YUV420P,
+                     pd->ff_vcontext.width, pd->ff_vcontext.height);
+ }
+ 
+@@ -228,7 +247,7 @@
+                     IMG_YUV_DEFAULT,
+                     pd->ff_vcontext.width, pd->ff_vcontext.height);
+     avpicture_fill((AVPicture *)&pd->ff_venc_frame, pd->vframe_buf->video_buf,
+-                   PIX_FMT_YUV422P,
++                   AV_PIX_FMT_YUV422P,
+                    pd->ff_vcontext.width, pd->ff_vcontext.height);
+     ac_imgconvert(src, IMG_YUV_DEFAULT,
+                   pd->ff_venc_frame.data, IMG_YUV422P,
+@@ -244,7 +263,7 @@
+                     IMG_YUV422P,
+                     pd->ff_vcontext.width, pd->ff_vcontext.height);
+     avpicture_fill((AVPicture *)&pd->ff_venc_frame, pd->vframe_buf->video_buf,
+-                   PIX_FMT_YUV420P,
++                   AV_PIX_FMT_YUV420P,
+                    pd->ff_vcontext.width, pd->ff_vcontext.height);
+     ac_imgconvert(src, IMG_YUV422P,
+                   pd->ff_venc_frame.data, IMG_YUV420P,
+@@ -256,7 +275,7 @@
+                                              vframe_list_t *vframe)
+ {
+     avpicture_fill((AVPicture *)&pd->ff_venc_frame, vframe->video_buf,
+-                   PIX_FMT_YUV422P,
++                   AV_PIX_FMT_YUV422P,
+                    pd->ff_vcontext.width, pd->ff_vcontext.height);
+ 
+ }
+@@ -266,7 +285,7 @@
+                                    vframe_list_t *vframe)
+ {
+     avpicture_fill((AVPicture *)&pd->ff_venc_frame, pd->vframe_buf->video_buf,
+-                   PIX_FMT_YUV420P,
++                   AV_PIX_FMT_YUV420P,
+                    pd->ff_vcontext.width, pd->ff_vcontext.height);
+     ac_imgconvert(&vframe->video_buf, IMG_RGB_DEFAULT,
+                   pd->ff_venc_frame.data, IMG_YUV420P,
+@@ -591,21 +610,21 @@
+       case CODEC_YUV:
+         if (TC_VCODEC_ID(pd) == TC_CODEC_HUFFYUV) {
+             pd->tc_pix_fmt = TC_CODEC_YUV422P;
+-            pd->ff_vcontext.pix_fmt = PIX_FMT_YUV422P;
++            pd->ff_vcontext.pix_fmt = AV_PIX_FMT_YUV422P;
+             pd->pre_encode_video = pre_encode_video_yuv420p_huffyuv;
+         } else {
+             pd->tc_pix_fmt = TC_CODEC_YUV420P;
+             pd->ff_vcontext.pix_fmt = (TC_VCODEC_ID(pd) == TC_CODEC_MJPEG) 
+-                                       ? PIX_FMT_YUVJ420P
+-                                       : PIX_FMT_YUV420P;
++                                       ? AV_PIX_FMT_YUVJ420P
++                                       : AV_PIX_FMT_YUV420P;
+             pd->pre_encode_video = pre_encode_video_yuv420p;
+         }
+         break;
+       case CODEC_YUV422:
+         pd->tc_pix_fmt = TC_CODEC_YUV422P;
+         pd->ff_vcontext.pix_fmt = (TC_VCODEC_ID(pd) == TC_CODEC_MJPEG) 
+-                                   ? PIX_FMT_YUVJ422P
+-                                   : PIX_FMT_YUV422P;
++                                   ? AV_PIX_FMT_YUVJ422P
++                                   : AV_PIX_FMT_YUV422P;
+         if (TC_VCODEC_ID(pd) == TC_CODEC_HUFFYUV) {
+             pd->pre_encode_video = pre_encode_video_yuv422p_huffyuv;
+         } else {
+@@ -615,10 +634,10 @@
+       case CODEC_RGB:
+         pd->tc_pix_fmt = TC_CODEC_RGB;
+         pd->ff_vcontext.pix_fmt = (TC_VCODEC_ID(pd) == TC_CODEC_HUFFYUV)
+-                                        ? PIX_FMT_YUV422P
++                                        ? AV_PIX_FMT_YUV422P
+                                         : (TC_VCODEC_ID(pd) == TC_CODEC_MJPEG) 
+-                                           ? PIX_FMT_YUVJ420P
+-                                           : PIX_FMT_YUV420P;
++                                           ? AV_PIX_FMT_YUVJ420P
++                                           : AV_PIX_FMT_YUV420P;
+         pd->pre_encode_video = pre_encode_video_rgb24;
+         break;
+       default:
 @@ -937,7 +956,11 @@
  static void tc_lavc_config_defaults(TCLavcPrivateData *pd)
  {
@@ -178,7 +266,7 @@ diff -urNad transcode-1.1.7-orig/encode/encode_lavc.c transcode-1.1.7/encode/enc
          { "psnr", PAUX(flags.psnr), TCCONF_TYPE_FLAG, 0, 0, CODEC_FLAG_PSNR },
  #if LIBAVCODEC_VERSION_INT < ((52<<16)+(0<<8)+0)
          { "trell", PAUX(flags.trell), TCCONF_TYPE_FLAG, 0, 0, CODEC_FLAG_TRELLIS_QUANT },
-@@ -1345,6 +1388,8 @@
+@@ -1345,12 +1388,14 @@
  
      pd = self->userdata;
  
@@ -187,6 +275,13 @@ diff -urNad transcode-1.1.7-orig/encode/encode_lavc.c transcode-1.1.7/encode/enc
      pd->flush_flag = vob->encoder_flush;
      
      /* FIXME: move into core? */
+     TC_INIT_LIBAVCODEC;
+ 
+-    avcodec_get_frame_defaults(&pd->ff_venc_frame);
++    av_frame_unref(&pd->ff_venc_frame);
+     /*
+      * auxiliary config data needs to be blanked too
+      * before any other operation
 @@ -1387,7 +1432,7 @@
                      pd->confdata.thread_count,
                      (pd->confdata.thread_count > 1) ?"s" :"");
@@ -210,9 +305,38 @@ diff -urNad transcode-1.1.7-orig/encode/encode_lavc.c transcode-1.1.7/encode/enc
          goto failed;
      }
      /* finally, pass up the extradata, if any */
+@@ -1483,6 +1528,8 @@
+                                 vframe_list_t *outframe)
+ {
+     TCLavcPrivateData *pd = NULL;
++    AVPacket pkt;
++    int ret, got_packet = 0;
+ 
+     TC_MODULE_SELF_CHECK(self, "encode_video");
+ 
+@@ -1497,12 +1544,15 @@
+ 
+     pd->pre_encode_video(pd, inframe); 
+ 
++    av_init_packet(&pkt);
++    pkt.data = outframe->video_buf;
++    pkt.size = inframe->video_size;
++
+     TC_LOCK_LIBAVCODEC;
+-    outframe->video_len = avcodec_encode_video(&pd->ff_vcontext,
+-                                               outframe->video_buf,
+-                                               inframe->video_size,
+-                                               &pd->ff_venc_frame);
++    ret = avcodec_encode_video2(&pd->ff_vcontext,   &pkt,
++    				&pd->ff_venc_frame, &got_packet);
+     TC_UNLOCK_LIBAVCODEC;
++    outframe->video_len = ret ? ret : pkt.size;
+ 
+     if (outframe->video_len < 0) {
+         tc_log_warn(MOD_NAME, "encoder error: size (%i)",
 diff -urNad transcode-1.1.7-orig/export/aud_aux.c transcode-1.1.7/export/aud_aux.c
 --- transcode-1.1.7-orig/export/aud_aux.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/export/aud_aux.c	2016-09-18 14:17:36.000000000 +0300
++++ transcode-1.1.7/export/aud_aux.c	2016-09-23 01:32:47.000000000 +0300
 @@ -326,10 +326,18 @@
  
      switch (o_codec) {
@@ -262,7 +386,7 @@ diff -urNad transcode-1.1.7-orig/export/aud_aux.c transcode-1.1.7/export/aud_aux
  
 diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/export_ffmpeg.c
 --- transcode-1.1.7-orig/export/export_ffmpeg.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/export/export_ffmpeg.c	2016-09-18 14:17:36.000000000 +0300
++++ transcode-1.1.7/export/export_ffmpeg.c	2016-09-23 01:33:48.000000000 +0300
 @@ -122,6 +122,7 @@
  static AVFrame             *lavc_convert_frame = NULL;
  
@@ -280,7 +404,32 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
  #include <libavutil/avstring.h>
  #include <libswscale/swscale.h>
  
-@@ -470,7 +471,6 @@
+@@ -249,9 +250,9 @@
+     for(type=0; type<AVMEDIA_TYPE_NB && ret>= 0; type++){
+ 		/* GLUE: +if */
+ 		if (type == AVMEDIA_TYPE_VIDEO) {
+-        const AVOption *o2 = av_find_opt(avcodec_opts[0], opt, NULL, opt_types[type], opt_types[type]);
+-        if(o2)
+-            ret = av_set_string3(avcodec_opts[type], opt, arg, 1, &o);
++        o = av_opt_find(avcodec_opts[0], opt, NULL, opt_types[type], opt_types[type]);
++        if(o)
++            ret = av_opt_set(avcodec_opts[type], opt, arg, 0);
+ 		/* GLUE: +if */
+ 		}
+     }
+@@ -266,7 +267,10 @@
+         if(opt[0] == 'a')
+             ret = av_set_string3(avcodec_opts[AVMEDIA_TYPE_AUDIO], opt+1, arg, 1, &o);
+         else */ if(opt[0] == 'v')
+-            ret = av_set_string3(avcodec_opts[AVMEDIA_TYPE_VIDEO], opt+1, arg, 1, &o);
++	{
++	    o = av_opt_find(avcodec_opts[AVMEDIA_TYPE_VIDEO], opt+1, NULL, 0, 0);
++            ret = av_opt_set(avcodec_opts[AVMEDIA_TYPE_VIDEO], opt+1, arg, 0);
++	}
+ 		/* GLUE: disabling
+         else if(opt[0] == 's')
+             ret = av_set_string3(avcodec_opts[AVMEDIA_TYPE_SUBTITLE], opt+1, arg, 1, &o);
+@@ -470,7 +474,6 @@
      }
  
      TC_LOCK_LIBAVCODEC;
@@ -288,16 +437,23 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
      avcodec_register_all();
      TC_UNLOCK_LIBAVCODEC;
  
-@@ -486,7 +486,7 @@
+@@ -486,11 +489,11 @@
  		            codec->name, codec->fourCC, codec->comments);
      }
  
 -    lavc_venc_context = avcodec_alloc_context();
+-    lavc_venc_frame   = avcodec_alloc_frame();
 +    lavc_venc_context = avcodec_alloc_context3(lavc_venc_codec);
-     lavc_venc_frame   = avcodec_alloc_frame();
++    lavc_venc_frame   = av_frame_alloc();
  
-     lavc_convert_frame= avcodec_alloc_frame();
-@@ -634,7 +634,7 @@
+-    lavc_convert_frame= avcodec_alloc_frame();
+-    size = avpicture_get_size(PIX_FMT_RGB24, vob->ex_v_width, vob->ex_v_height);
++    lavc_convert_frame= av_frame_alloc();
++    size = avpicture_get_size(AV_PIX_FMT_RGB24, vob->ex_v_width, vob->ex_v_height);
+     enc_buffer = tc_malloc(size);
+ 
+     if (lavc_venc_context == NULL || !enc_buffer || !lavc_convert_frame) {
+@@ -634,7 +637,7 @@
          lavc_param_rc_max_rate = 2516;
          lavc_param_rc_buffer_size = 224 * 8;
          lavc_param_rc_buffer_aggressivity = 99;
@@ -306,7 +462,7 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
  
          break;
  
-@@ -674,7 +674,7 @@
+@@ -674,7 +677,7 @@
  
          lavc_param_rc_buffer_size = 224 * 8;
          lavc_param_rc_buffer_aggressivity = 99;
@@ -315,7 +471,7 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
  
          break;
  
-@@ -838,8 +838,13 @@
+@@ -838,8 +841,13 @@
      lavc_venc_context->rc_strategy        = lavc_param_vrc_strategy;
      lavc_venc_context->b_frame_strategy   = lavc_param_vb_strategy;
      lavc_venc_context->b_quant_offset     = lavc_param_vb_qoffset;
@@ -331,7 +487,7 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
      lavc_venc_context->rtp_payload_size   = lavc_param_packet_size;
  #if LIBAVCODEC_VERSION_INT < ((52<<16)+(0<<8)+0)   
      if (lavc_param_packet_size)
-@@ -870,7 +875,7 @@
+@@ -870,7 +878,7 @@
      lavc_venc_context->context_model      = lavc_param_context;
      lavc_venc_context->scenechange_threshold= lavc_param_sc_threshold;
      lavc_venc_context->noise_reduction    = lavc_param_noise_reduction;
@@ -340,7 +496,7 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
      lavc_venc_context->intra_dc_precision = lavc_param_intra_dc_precision;
      lavc_venc_context->skip_top           = lavc_param_skip_top;
      lavc_venc_context->skip_bottom        = lavc_param_skip_bottom;
-@@ -887,7 +892,7 @@
+@@ -887,7 +895,7 @@
  		    lavc_venc_context->thread_count);
      }
  
@@ -349,7 +505,7 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
  
      if (lavc_param_intra_matrix) {
          char *tmp;
-@@ -1065,15 +1070,12 @@
+@@ -1065,15 +1073,12 @@
      lavc_venc_context->flags |= lavc_param_closedgop;
      lavc_venc_context->flags |= lavc_param_trunc;
      lavc_venc_context->flags |= lavc_param_aic;
@@ -369,7 +525,39 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
      lavc_venc_context->flags |= lavc_param_ilme;
  #if LIBAVCODEC_VERSION_INT < ((52<<16)+(0<<8)+0)   
      lavc_venc_context->flags |= lavc_param_trell;
-@@ -1241,20 +1243,39 @@
+@@ -1112,7 +1117,7 @@
+     lavc_venc_context->prediction_method = lavc_param_prediction_method;
+ 
+     if(is_huffyuv)
+-        lavc_venc_context->pix_fmt = PIX_FMT_YUV422P;
++        lavc_venc_context->pix_fmt = AV_PIX_FMT_YUV422P;
+     else
+     {
+         switch(pix_fmt)
+@@ -1121,18 +1126,18 @@
+             case CODEC_RGB:
+             {
+                 if(is_mjpeg)
+-                    lavc_venc_context->pix_fmt = PIX_FMT_YUVJ420P;
++                    lavc_venc_context->pix_fmt = AV_PIX_FMT_YUVJ420P;
+                 else
+-                    lavc_venc_context->pix_fmt = PIX_FMT_YUV420P;
++                    lavc_venc_context->pix_fmt = AV_PIX_FMT_YUV420P;
+                 break;
+             }
+ 
+             case CODEC_YUV422:
+             {
+                 if(is_mjpeg)
+-                    lavc_venc_context->pix_fmt = PIX_FMT_YUVJ422P;
++                    lavc_venc_context->pix_fmt = AV_PIX_FMT_YUVJ422P;
+                 else
+-                    lavc_venc_context->pix_fmt = PIX_FMT_YUV422P;
++                    lavc_venc_context->pix_fmt = AV_PIX_FMT_YUV422P;
+                 break;
+             }
+ 
+@@ -1241,20 +1246,39 @@
  		}
  	}
  
@@ -412,9 +600,66 @@ diff -urNad transcode-1.1.7-orig/export/export_ffmpeg.c transcode-1.1.7/export/e
        return TC_EXPORT_ERROR;
      }
  
+@@ -1574,6 +1598,8 @@
+ 
+   int out_size;
+   const char pict_type_char[5]= {'?', 'I', 'P', 'B', 'S'};
++  AVPacket pkt;
++  int ret, got_packet = 0;
+ 
+   if (param->flag == TC_VIDEO) {
+ 
+@@ -1598,7 +1624,7 @@
+ 	        	YUV_INIT_PLANES(src, param->buffer, IMG_YUV_DEFAULT,
+ 			                	lavc_venc_context->width, lavc_venc_context->height);
+                 avpicture_fill((AVPicture *)lavc_venc_frame, img_buffer,
+-                               PIX_FMT_YUV422P, lavc_venc_context->width,
++                               AV_PIX_FMT_YUV422P, lavc_venc_context->width,
+                                lavc_venc_context->height);
+         		/* FIXME: can't use tcv_convert (see decode_lavc.c) */
+                 ac_imgconvert(src, IMG_YUV_DEFAULT,
+@@ -1628,7 +1654,7 @@
+ 		                		lavc_venc_context->width,
+                                 lavc_venc_context->height);
+                 avpicture_fill((AVPicture *)lavc_venc_frame, img_buffer,
+-                               PIX_FMT_YUV420P, lavc_venc_context->width,
++                               AV_PIX_FMT_YUV420P, lavc_venc_context->width,
+                                lavc_venc_context->height);
+                 ac_imgconvert(src, IMG_YUV422P,
+                               lavc_venc_frame->data, IMG_YUV420P,
+@@ -1639,7 +1665,7 @@
+ 
+         case CODEC_RGB:
+             avpicture_fill((AVPicture *)lavc_venc_frame, img_buffer,
+-                           PIX_FMT_YUV420P, lavc_venc_context->width,
++                           AV_PIX_FMT_YUV420P, lavc_venc_context->width,
+                            lavc_venc_context->height);
+     	    ac_imgconvert(&param->buffer, IMG_RGB_DEFAULT,
+                               lavc_venc_frame->data, IMG_YUV420P,
+@@ -1652,13 +1678,17 @@
+               return TC_EXPORT_ERROR;
+     }
+ 
++    av_init_packet(&pkt);
++    pkt.data = enc_buffer;
++    pkt.size = size;
+ 
+     TC_LOCK_LIBAVCODEC;
+-    out_size = avcodec_encode_video(lavc_venc_context,
+-                                    enc_buffer, size,
+-                                    lavc_venc_frame);
++    ret = avcodec_encode_video2(lavc_venc_context, &pkt,
++                                    lavc_venc_frame, &got_packet);
+     TC_UNLOCK_LIBAVCODEC;
+ 
++    out_size = ret ? ret : pkt.size;
++
+     if (out_size < 0) {
+       tc_log_warn(MOD_NAME, "encoder error: size (%d)", out_size);
+       return TC_EXPORT_ERROR;
 diff -urNad transcode-1.1.7-orig/export/ffmpeg_cfg.c transcode-1.1.7/export/ffmpeg_cfg.c
 --- transcode-1.1.7-orig/export/ffmpeg_cfg.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/export/ffmpeg_cfg.c	2016-09-18 14:17:36.000000000 +0300
++++ transcode-1.1.7/export/ffmpeg_cfg.c	2016-09-23 01:32:47.000000000 +0300
 @@ -160,9 +160,9 @@
      {"vcelim", &lavc_param_chroma_elim_threshold, TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, -99, 99},
      {"vpsize", &lavc_param_packet_size, TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, 0, 100000000},
@@ -457,7 +702,7 @@ diff -urNad transcode-1.1.7-orig/export/ffmpeg_cfg.c transcode-1.1.7/export/ffmp
      {"sc_threshold", &lavc_param_sc_threshold, TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, -1000000, 1000000},
 diff -urNad transcode-1.1.7-orig/filter/filter_pp.c transcode-1.1.7/filter/filter_pp.c
 --- transcode-1.1.7-orig/filter/filter_pp.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/filter/filter_pp.c	2016-09-18 14:37:54.000000000 +0300
++++ transcode-1.1.7/filter/filter_pp.c	2016-09-23 01:32:47.000000000 +0300
 @@ -38,8 +38,8 @@
  
  /* FIXME: these use the filter ID as an index--the ID can grow
@@ -469,365 +714,29 @@ diff -urNad transcode-1.1.7-orig/filter/filter_pp.c transcode-1.1.7/filter/filte
  static int width[100], height[100];
  static int pre[100];
  
-diff -urNad transcode-1.1.7-orig/filter/filter_pp.c~ transcode-1.1.7/filter/filter_pp.c~
---- transcode-1.1.7-orig/filter/filter_pp.c~	1970-01-01 02:00:00.000000000 +0200
-+++ transcode-1.1.7/filter/filter_pp.c~	2011-11-19 18:50:27.000000000 +0200
-@@ -0,0 +1,352 @@
-+/*
-+ *  filter_pp.c
-+ *
-+ *  Copyright (C) Gerhard Monzel - Januar 2002
-+ *
-+ *  This file is part of transcode, a video stream processing tool
-+ *
-+ *  transcode is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2, or (at your option)
-+ *  any later version.
-+ *
-+ *  transcode is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with GNU Make; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+#define MOD_NAME    "filter_pp.so"
-+#define MOD_VERSION "v1.2.4 (2003-01-24)"
-+#define MOD_CAP     "Mplayers postprocess filters"
-+#define MOD_AUTHOR  "Michael Niedermayer et al, Gerhard Monzel"
-+
-+#include "transcode.h"
-+#include "filter.h"
-+#include "libtc/libtc.h"
-+#include "libtc/optstr.h"
-+
-+#include <ctype.h>
-+#include <stdint.h>
-+
-+#include <libpostproc/postprocess.h>
-+
-+/* FIXME: these use the filter ID as an index--the ID can grow
-+ * arbitrarily large, so this needs to be fixed */
-+static pp_mode_t *mode[100];
-+static pp_context_t *context[100];
-+static int width[100], height[100];
-+static int pre[100];
-+
-+/*-------------------------------------------------
-+ *
-+ * single function interface
-+ *
-+ *-------------------------------------------------*/
-+
-+static void optstr_help (void)
-+{
-+  tc_log_info(MOD_NAME, "(%s) help\n"
-+"<filterName>[:<option>[:<option>...]][[|/][-]<filterName>[:<option>...]]...\n"
-+"long form example:\n"
-+"vdeblock:autoq/hdeblock:autoq/linblenddeint    default,-vdeblock\n"
-+"short form example:\n"
-+"vb:a/hb:a/lb                                   de,-vb\n"
-+"more examples:\n"
-+"tn:64:128:256\n"
-+"Filters                        Options\n"
-+"short  long name       short   long option     Description\n"
-+"*      *               a       autoq           cpu power dependant enabler\n"
-+"                       c       chrom           chrominance filtring enabled\n"
-+"                       y       nochrom         chrominance filtring disabled\n"
-+"hb     hdeblock        (2 Threshold)           horizontal deblocking filter\n"
-+"       1. difference factor: default=64, higher -> more deblocking\n"
-+"       2. flatness threshold: default=40, lower -> more deblocking\n"
-+"                       the h & v deblocking filters share these\n"
-+"                       so u cant set different thresholds for h / v\n"
-+"vb     vdeblock        (2 Threshold)           vertical deblocking filter\n"
-+"h1     x1hdeblock                              Experimental h deblock filter 1\n"
-+"v1     x1vdeblock                              Experimental v deblock filter 1\n"
-+"dr     dering                                  Deringing filter\n"
-+"al     autolevels                              automatic brightness / contrast\n"
-+"                       f       fullyrange      stretch luminance to (0..255)\n"
-+"lb     linblenddeint                           linear blend deinterlacer\n"
-+"li     linipoldeint                            linear interpolating deinterlace\n"
-+"ci     cubicipoldeint                          cubic interpolating deinterlacer\n"
-+"md     mediandeint                             median deinterlacer\n"
-+"fd     ffmpegdeint                             ffmpeg deinterlacer\n"
-+"de     default                                 hb:a,vb:a,dr:a,al\n"
-+"fa     fast                                    h1:a,v1:a,dr:a,al\n"
-+"tn     tmpnoise        (3 Thresholds)          Temporal Noise Reducer\n"
-+"                       1. <= 2. <= 3.          larger -> stronger filtering\n"
-+"fq     forceQuant      <quantizer>             Force quantizer\n"
-+"pre    pre                                     run as a pre filter\n"
-+	      , MOD_CAP);
-+}
-+
-+
-+static void do_getconfig(char *opts)
-+{
-+
-+    optstr_filter_desc (opts, MOD_NAME, MOD_CAP, MOD_VERSION, MOD_AUTHOR, "VYMOE", "1");
-+
-+    optstr_param (opts, "hb", "Horizontal deblocking filter", "%d:%d", "64:40", "0", "255", "0", "255");
-+    optstr_param (opts, "vb", "Vertical deblocking filter", "%d:%d", "64:40", "0", "255", "0", "255");
-+    optstr_param (opts, "h1", "Experimental h deblock filter 1", "", "0");
-+    optstr_param (opts, "v1", "Experimental v deblock filter 1", "", "0");
-+    optstr_param (opts, "dr", "Deringing filter", "", "0");
-+    optstr_param (opts, "al", "Automatic brightness / contrast", "", "0");
-+    optstr_param (opts, "f", "Stretch luminance to (0..255)", "", "0");
-+    optstr_param (opts, "lb", "Linear blend deinterlacer", "", "0");
-+    optstr_param (opts, "li", "Linear interpolating deinterlace", "", "0");
-+    optstr_param (opts, "ci", "Cubic interpolating deinterlacer", "", "0");
-+    optstr_param (opts, "md", "Median deinterlacer", "", "0");
-+    optstr_param (opts, "de", "Default preset (hb:a/vb:a/dr:a/al)", "", "0");
-+    optstr_param (opts, "fa", "Fast preset (h1:a/v1:a/dr:a/al)", "", "0");
-+    optstr_param (opts, "tn", "Temporal Noise Reducer (1<=2<=3)",
-+	    "%d:%d:%d", "64:128:256", "0", "700", "0", "1500", "0", "3000");
-+    optstr_param (opts, "fq", "Force quantizer", "%d", "15", "0", "255");
-+    optstr_param (opts, "pre", "Run as a PRE filter", "", "0");
-+}
-+
-+static int no_optstr (char *s)
-+{
-+  int result = 0; // decrement if transcode, increment if mplayer
-+  char *c = s;
-+
-+  while (c && *c && (c = strchr (c, '=')))  { result--; c++; }
-+  c = s;
-+  while (c && *c && (c = strchr (c, '/')))  { result++; c++; }
-+  c = s;
-+  while (c && *c && (c = strchr (c, '|')))  { result++; c++; }
-+  c = s;
-+  while (c && *c && (c = strchr (c, ',')))  { result++; c++; }
-+
-+
-+  return (result<=0)?0:1;
-+}
-+
-+static void do_optstr(char *opts)
-+{
-+    opts++;
-+
-+    while (*opts) {
-+
-+	if (*(opts-1) == ':') {
-+	    if (isalpha(*opts)) {
-+		if (
-+			(
-+			    strncmp(opts, "autoq", 5)   == 0
-+		        ) || (
-+			    strncmp(opts, "chrom", 5)   == 0
-+		        ) || (
-+			    strncmp(opts, "nochrom", 7) == 0
-+			) || (
-+			   (strncmp(opts, "a", 1)==0) && (strncmp(opts,"al",2)!=0)
-+			) || (
-+			   (strncmp(opts, "c", 1)==0) && (strncmp(opts,"ci",2)!=0)
-+			) || (
-+			    strncmp(opts, "y", 1)==0
-+			)
-+		   ) {
-+		    opts++;
-+		    continue;
-+		} else {
-+		    *(opts-1) = '/';
-+		}
-+	    }
-+
-+
-+	}
-+
-+	if (*opts == '=')
-+	    *opts = ':';
-+
-+	opts++;
-+    }
-+}
-+
-+static char * pp_lookup(char *haystack, char *needle)
-+{
-+	char *ch = haystack;
-+	int found = 0;
-+	int len = strlen (needle);
-+
-+	while (!found) {
-+		ch = strstr(ch, needle);
-+
-+		if (!ch) break;
-+
-+		if (ch[len] == '\0' || ch[len] == '=' || ch[len] == '/') {
-+			found = 1;
-+		} else {
-+			ch++;
-+		}
-+	}
-+
-+	return (ch);
-+
-+
-+}
-+
-+int tc_filter(frame_list_t *ptr_, char *options)
-+{
-+  vframe_list_t *ptr = (vframe_list_t *)ptr_;
-+  static vob_t *vob=NULL;
-+  int instance = ptr->filter_id;
-+
-+
-+  //----------------------------------
-+  //
-+  // filter init
-+  //
-+  //----------------------------------
-+
-+
-+  if( (ptr->tag & TC_AUDIO))
-+	  return 0;
-+
-+  if(ptr->tag & TC_FRAME_IS_SKIPPED)
-+	  return 0;
-+
-+  if(ptr->tag & TC_FILTER_INIT)
-+  {
-+    char *c;
-+    int len=0;
-+
-+    if((vob = tc_get_vob())==NULL) return(-1);
-+
-+    if (vob->im_v_codec == CODEC_RGB)
-+    {
-+      tc_log_error(MOD_NAME, "filter is not capable for RGB-Mode !");
-+      return(-1);
-+    }
-+
-+    if (!options || !(len=strlen(options)))
-+    {
-+      tc_log_error(MOD_NAME, "this filter needs options !");
-+      return(-1);
-+    }
-+
-+
-+    if (!no_optstr(options)) {
-+	do_optstr(options);
-+    }
-+
-+    // if "pre" is found, delete it
-+    if ( (c=pp_lookup(options, "pre")) ) {
-+	memmove (c, c+3, &options[len]-c);
-+	pre[instance] = 1;
-+    }
-+
-+    if ( (c=pp_lookup(options, "help")) ) {
-+	memmove (c, c+4, &options[len]-c);
-+	optstr_help();
-+    }
-+
-+    if (pre[instance]) {
-+      width[instance] = vob->im_v_width;
-+      height[instance]= vob->im_v_height;
-+    } else {
-+      width[instance] = vob->ex_v_width;
-+      height[instance]= vob->ex_v_height;
-+    }
-+
-+    //tc_log_msg(MOD_NAME, "after pre (%s)", options);
-+
-+    mode[instance] = pp_get_mode_by_name_and_quality(options, PP_QUALITY_MAX);
-+
-+    if(mode[instance]==NULL) {
-+      tc_log_error(MOD_NAME, "internal error (pp_get_mode_by_name_and_quality)");
-+      return(-1);
-+    }
-+
-+    if(tc_accel & AC_MMXEXT)
-+      context[instance] = pp_get_context(width[instance], height[instance], PP_CPU_CAPS_MMX2);
-+    else if(tc_accel & AC_3DNOW)
-+      context[instance] = pp_get_context(width[instance], height[instance], PP_CPU_CAPS_3DNOW);
-+    else if(tc_accel & AC_MMX)
-+      context[instance] = pp_get_context(width[instance], height[instance], PP_CPU_CAPS_MMX);
-+    else
-+      context[instance] = pp_get_context(width[instance], height[instance], 0);
-+
-+    if(context[instance]==NULL) {
-+      tc_log_error(MOD_NAME, "internal error (pp_get_context) (instance=%d)", instance);
-+      return(-1);
-+    }
-+
-+    // filter init ok.
-+    if(verbose) tc_log_info(MOD_NAME, "%s %s #%d", MOD_VERSION, MOD_CAP, ptr->filter_id);
-+    return(0);
-+  }
-+
-+  //----------------------------------
-+  //
-+  // filter configure
-+  //
-+  //----------------------------------
-+
-+  if(ptr->tag & TC_FILTER_GET_CONFIG)
-+  {
-+      do_getconfig (options);
-+      return 0;
-+  }
-+
-+  //----------------------------------
-+  //
-+  // filter close
-+  //
-+  //----------------------------------
-+
-+
-+  if(ptr->tag & TC_FILTER_CLOSE)
-+  {
-+    if (mode[instance])
-+      pp_free_mode(mode[instance]);
-+    mode[instance] = NULL;
-+    if (context[instance])
-+      pp_free_context(context[instance]);
-+    context[instance] = NULL;
-+
-+    return(0);
-+  }
-+
-+  //----------------------------------
-+  //
-+  // filter frame routine
-+  //
-+  //----------------------------------
-+
-+
-+  // tag variable indicates, if we are called before
-+  // transcodes internal video/audo frame processing routines
-+  // or after and determines video/audio context
-+
-+  if(((ptr->tag & TC_PRE_M_PROCESS  && pre[instance]) ||
-+	  (ptr->tag & TC_POST_M_PROCESS && !pre[instance])) &&
-+	  !(ptr->attributes & TC_FRAME_IS_SKIPPED))
-+  {
-+    unsigned char *pp_page[3];
-+    int ppStride[3];
-+
-+      pp_page[0] = ptr->video_buf;
-+      pp_page[1] = pp_page[0] + (width[instance] * height[instance]);
-+      pp_page[2] = pp_page[1] + (width[instance] * height[instance])/4;
-+
-+      ppStride[0] = width[instance];
-+      ppStride[1] = ppStride[2] = width[instance]>>1;
-+
-+      pp_postprocess((void *)pp_page, ppStride,
-+		     pp_page, ppStride,
-+		     width[instance], height[instance],
-+		     NULL, 0, mode[instance], context[instance], 0);
-+  }
-+
-+  return(0);
-+}
-+
+diff -urNad transcode-1.1.7-orig/filter/filter_resample.c transcode-1.1.7/filter/filter_resample.c
+--- transcode-1.1.7-orig/filter/filter_resample.c	2011-11-19 18:50:27.000000000 +0200
++++ transcode-1.1.7/filter/filter_resample.c	2016-09-23 01:34:00.000000000 +0300
+@@ -37,6 +37,7 @@
+ #include "libtc/optstr.h"
+ #include "libtc/tcavcodec.h"
+ #include "libtc/tcmodule-plugin.h"
++#include <libavresample/avresample.h>
+ 
+ 
+ typedef struct {
+@@ -45,7 +46,7 @@
+ 
+     int bytes_per_sample;
+ 
+-    ReSampleContext *resample_ctx;
++    AVAudioResampleContext *resample_ctx;
+ } ResamplePrivateData;
+ 
+ static const char resample_help[] = ""
 diff -urNad transcode-1.1.7-orig/import/decode_lavc.c transcode-1.1.7/import/decode_lavc.c
 --- transcode-1.1.7-orig/import/decode_lavc.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/import/decode_lavc.c	2016-09-18 14:57:00.000000000 +0300
++++ transcode-1.1.7/import/decode_lavc.c	2016-09-23 01:33:48.000000000 +0300
 @@ -57,6 +57,7 @@
  };
  
@@ -903,9 +812,51 @@ diff -urNad transcode-1.1.7-orig/import/decode_lavc.c transcode-1.1.7/import/dec
        tc_log_error(__FILE__, "Could not initialize the '%s' codec.",
  		   codec->name);
        goto decoder_error;
+@@ -290,8 +327,8 @@
+ 
+       // Convert avcodec image to the requested YUV or RGB format
+       switch (lavc_dec_context->pix_fmt) {
+-	case PIX_FMT_YUVJ420P:
+-	case PIX_FMT_YUV420P:
++	case AV_PIX_FMT_YUVJ420P:
++	case AV_PIX_FMT_YUV420P:
+ 	    // Remove "dead space" at right edge of planes, if any
+ 	    if (picture.linesize[0] != lavc_dec_context->width) {
+ 		int y;
+@@ -315,7 +352,7 @@
+ 			  pix_fmt==TC_CODEC_YUV420P ? IMG_YUV420P : IMG_RGB_DEFAULT,
+ 			  lavc_dec_context->width, lavc_dec_context->height);
+ 	    break;
+-	case PIX_FMT_YUV411P:
++	case AV_PIX_FMT_YUV411P:
+ 	    if (picture.linesize[0] != lavc_dec_context->width) {
+ 		int y;
+ 		for (y = 0; y < lavc_dec_context->height; y++) {
+@@ -334,8 +371,8 @@
+ 			  pix_fmt==TC_CODEC_YUV420P ? IMG_YUV420P : IMG_RGB_DEFAULT,
+ 			  lavc_dec_context->width, lavc_dec_context->height);
+ 	    break;
+-	case PIX_FMT_YUVJ422P:
+-	case PIX_FMT_YUV422P:
++	case AV_PIX_FMT_YUVJ422P:
++	case AV_PIX_FMT_YUV422P:
+ 	    if (picture.linesize[0] != lavc_dec_context->width) {
+ 		int y;
+ 		for (y = 0; y < lavc_dec_context->height; y++) {
+@@ -354,8 +391,8 @@
+ 			  pix_fmt==TC_CODEC_YUV420P ? IMG_YUV420P : IMG_RGB_DEFAULT,
+ 			  lavc_dec_context->width, lavc_dec_context->height);
+ 	    break;
+-	case PIX_FMT_YUVJ444P:
+-	case PIX_FMT_YUV444P:
++	case AV_PIX_FMT_YUVJ444P:
++	case AV_PIX_FMT_YUV444P:
+ 	    if (picture.linesize[0] != lavc_dec_context->width) {
+ 		int y;
+ 		for (y = 0; y < lavc_dec_context->height; y++) {
 diff -urNad transcode-1.1.7-orig/import/import_ffmpeg.c transcode-1.1.7/import/import_ffmpeg.c
 --- transcode-1.1.7-orig/import/import_ffmpeg.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/import/import_ffmpeg.c	2016-09-18 14:17:36.000000000 +0300
++++ transcode-1.1.7/import/import_ffmpeg.c	2016-09-23 01:33:48.000000000 +0300
 @@ -58,6 +58,7 @@
  };
  
@@ -1072,9 +1023,62 @@ diff -urNad transcode-1.1.7-orig/import/import_ffmpeg.c transcode-1.1.7/import/i
  	bkey = 1;
        }
  
+@@ -580,8 +661,8 @@
+ 
+     // Convert avcodec image to our internal YUV or RGB format
+     switch (lavc_dec_context->pix_fmt) {
+-      case PIX_FMT_YUVJ420P:
+-      case PIX_FMT_YUV420P:
++      case AV_PIX_FMT_YUVJ420P:
++      case AV_PIX_FMT_YUV420P:
+         src_fmt = IMG_YUV420P;
+         YUV_INIT_PLANES(src_planes, frame, src_fmt,
+                         lavc_dec_context->width, lavc_dec_context->height);
+@@ -612,7 +693,7 @@
+ 	}
+         break;
+ 
+-      case PIX_FMT_YUV411P:
++      case AV_PIX_FMT_YUV411P:
+         src_fmt = IMG_YUV411P;
+         YUV_INIT_PLANES(src_planes, frame, src_fmt,
+                         lavc_dec_context->width, lavc_dec_context->height);
+@@ -640,8 +721,8 @@
+         }
+         break;
+ 
+-      case PIX_FMT_YUVJ422P:
+-      case PIX_FMT_YUV422P:
++      case AV_PIX_FMT_YUVJ422P:
++      case AV_PIX_FMT_YUV422P:
+         src_fmt = IMG_YUV422P;
+         YUV_INIT_PLANES(src_planes, frame, src_fmt,
+                         lavc_dec_context->width, lavc_dec_context->height);
+@@ -669,8 +750,8 @@
+         }
+ 	break;
+ 
+-      case PIX_FMT_YUVJ444P:
+-      case PIX_FMT_YUV444P:
++      case AV_PIX_FMT_YUVJ444P:
++      case AV_PIX_FMT_YUV444P:
+         src_fmt = IMG_YUV444P;
+         YUV_INIT_PLANES(src_planes, frame, src_fmt,
+                         lavc_dec_context->width, lavc_dec_context->height);
 diff -urNad transcode-1.1.7-orig/import/probe_ffmpeg.c transcode-1.1.7/import/probe_ffmpeg.c
 --- transcode-1.1.7-orig/import/probe_ffmpeg.c	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/import/probe_ffmpeg.c	2016-09-18 15:00:27.000000000 +0300
++++ transcode-1.1.7/import/probe_ffmpeg.c	2016-09-23 01:34:00.000000000 +0300
+@@ -51,8 +51,8 @@
+             info->bitrate = st->codec->bit_rate / 1000;
+             info->width = st->codec->width;
+             info->height = st->codec->height;
+-            if (st->r_frame_rate.num > 0 && st->r_frame_rate.den > 0) {
+-                info->fps = av_q2d(st->r_frame_rate);
++            if (st->avg_frame_rate.num > 0 && st->avg_frame_rate.den > 0) {
++                info->fps = av_q2d(st->avg_frame_rate);
+             } else {
+                 /* watch out here */
+                 info->fps = 1.0/av_q2d(st->codec->time_base);
 @@ -99,8 +99,8 @@
  
      TC_INIT_LIBAVCODEC;
@@ -1109,7 +1113,7 @@ diff -urNad transcode-1.1.7-orig/import/probe_ffmpeg.c transcode-1.1.7/import/pr
  
 diff -urNad transcode-1.1.7-orig/libtc/tcavcodec.h transcode-1.1.7/libtc/tcavcodec.h
 --- transcode-1.1.7-orig/libtc/tcavcodec.h	2011-11-19 18:50:27.000000000 +0200
-+++ transcode-1.1.7/libtc/tcavcodec.h	2016-09-18 14:45:45.000000000 +0300
++++ transcode-1.1.7/libtc/tcavcodec.h	2016-09-23 01:32:48.000000000 +0300
 @@ -53,7 +53,6 @@
  
  #define TC_INIT_LIBAVCODEC do { \
