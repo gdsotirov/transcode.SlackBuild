@@ -19,14 +19,14 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: transcode.SlackBuild,v 1.8 2016/09/18 12:26:32 gsotirov Exp $
+# $Id: transcode.SlackBuild,v 1.9 2016/09/22 22:52:03 gsotirov Exp $
 #
 
 . ../../slack-package.conf
 
 NAME=transcode
 VERSION=1.1.7
-ARCH=${ARCH:-i486}
+ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
 TMP=${TMP:-/tmp}
@@ -43,7 +43,7 @@ if [ -e $SRC -a -d $SRC ]; then
   exit 1
 fi
 
-PKG=$TMP/package-$NAME
+PKG=$TMP/package-${NAME}
 if [ -e $PKG -a -d $PKG ]; then
   echo "Package creation directory '$PKG' already exists! Please, move it or remove it."
   exit 2
@@ -52,7 +52,7 @@ mkdir -p $PKG
 
 # Extract and fix source
 cd $TMP
-tar -xvf $CWD/$NAME-$VERSION.tar.bz2 || exit 3
+tar -xvf $CWD/${NAME}-${VERSION}.tar.bz2 || exit 3
 cd $SRC
 fix_source
 
@@ -70,8 +70,8 @@ fi
 # Build the package
 CFLAGS=$SLKCFLAGS \
 CXXFLAGS=$SLKCFLAGS \
-./configure --build=$ARCH-slackware-linux \
-            --host=$ARCH-slackware-linux \
+./configure --build=${ARCH}-slackware-linux \
+            --host=${ARCH}-slackware-linux \
             --prefix=/usr \
             --libdir=/usr/lib${LIBDIRSUFFIX} \
             --sysconfdir=/etc \
@@ -131,7 +131,7 @@ install -m 644 $SRC/libtcvideo/*.h $PKG/usr/include/transcode/libtcvideo/
 # Prepare the package
 bin_perms $PKG
 ( cd $PKG; strip_bin; strip_lib )
-( cd $SRC; create_docs $PKG $NAME-$VERSION )
+( cd $SRC; create_docs $PKG ${NAME}-${VERSION} )
 gzip_man $PKG
 
 install -m 755 -d $PKG/install
@@ -141,20 +141,20 @@ install -m 644 $CWD/slack-suggests $PKG/install/slack-suggests
 
 SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
 install -m 755 -d $SBDIR
-install -m 644 $CWD/slack-desc       $SBDIR/slack-desc
-install -m 644 $CWD/slack-required   $SBDIR/slack-required
-install -m 644 $CWD/slack-suggests   $SBDIR/slack-suggests
+install -m 644 $CWD/slack-desc         $SBDIR/slack-desc
+install -m 644 $CWD/slack-required     $SBDIR/slack-required
+install -m 644 $CWD/slack-suggests     $SBDIR/slack-suggests
 if [ -e $CWD/${NAME}-${VERSION}.diff ]; then
   install -m 644 $CWD/${NAME}-${VERSION}.diff $SBDIR/${NAME}-${VERSION}.diff
 fi
-install -m 644 $CWD/$NAME.SlackBuild $SBDIR/$NAME.SlackBuild
+install -m 644 $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
 # Pack
-PKGNAME=$NAME-${VERSION}-$ARCH-$BUILD$MYIN
+PKGNAME=${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}
 cd $PKG
-makepkg -l y -c n $PKG_DIR/$PKGNAME.txz
-md5sum $PKG_DIR/$PKGNAME.txz > $PKG_DIR/$PKGNAME.txz.md5
-cp $CWD/slack-desc $PKG_DIR/$PKGNAME.txt
+makepkg -l y -c n $PKG_DIR/${PKGNAME}.txz
+md5sum $PKG_DIR/${PKGNAME}.txz > $PKG_DIR/${PKGNAME}.txz.md5
+cp $CWD/slack-desc $PKG_DIR/${PKGNAME}.txt
 
 # Clean up (optionally)
 if [ "$1" = "--cleanup" ]; then
