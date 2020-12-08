@@ -12,4 +12,4 @@ transcode: conversion, smoothing, cutting. Transcode can import DVDs
 transcode: on-the-fly, or record from Video4Linux (including V4L2 video
 transcode: capturing) devices.
 transcode:
-transcode: Packaged By Georgi D. Sotirov <gdsotirov@dir.bg>
+transcode: Packaged By Georgi D. Sotirov <gdsotirov@gmail.com>
